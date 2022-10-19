@@ -1,0 +1,1 @@
+docker-compose -p sgc-stack up -d

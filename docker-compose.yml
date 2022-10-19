@@ -1,0 +1,58 @@
+version: '3.8'
+services:
+
+  sgc:
+    depends_on:
+      db:
+        condition: service_healthy
+      openldap:
+        condition: service_started
+    image: esup-sgc
+    volumes:
+      - ./esup-sgc-config/spring:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/META-INF/spring
+      - ./esup-sgc-config/persistence.xml:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/META-INF/persistence.xml
+    ports:
+      - 8205:8205
+      - 8209:8209
+
+  db:
+    build:
+      context: ./docker-postgres
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST_AUTH_METHOD: password
+    ports:
+      - 4432:5432
+    volumes:
+      - ./postgres-config/init:/docker-entrypoint-initdb.d
+      - ./postgres-config/data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  openldap:
+    image: osixia/openldap:1.5.0
+    environment:
+      LDAP_DOMAIN: "univ-ville.fr"
+    command: --copy-service
+    volumes:
+      - ./ldap-config/eduperson.schema:/container/service/slapd/assets/config/bootstrap/schema/eduperson.schema
+      - ./ldap-config/schac.schema:/container/service/slapd/assets/config/bootstrap/schema/schac.schema
+      - ./ldap-config/supann-2021-10-01.schema:/container/service/slapd/assets/config/bootstrap/schema/supann-2021-10-01.schema
+      - ./ldap-config/data.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/data.ldif
+    ports:
+      - 3890:389
+
+  front:
+    depends_on:
+      - sgc
+    build:
+      context: ./docker-apache-proxy
+    volumes:
+      - ./apache-proxy-config/000-default.conf:/opt/proxy-conf/000-default.conf
+    ports:
+      - 8080:80
