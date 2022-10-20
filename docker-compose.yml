@@ -9,15 +9,30 @@ services:
         condition: service_started
     image: esup-sgc
     volumes:
-      - ./esup-sgc-config/spring:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/META-INF/spring
-      - ./esup-sgc-config/persistence.xml:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/META-INF/persistence.xml
+      - ./config/esup-sgc/spring:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/META-INF/spring
+      - ./config/esup-sgc/persistence.xml:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/META-INF/persistence.xml
     ports:
       - 8205:8205
       - 8209:8209
 
+  nfc-tag:
+    depends_on:
+      db:
+        condition: service_healthy
+      openldap:
+        condition: service_started
+    image: esup-nfc-tag
+    volumes:
+      - ./config/esup-nfc-tag/spring:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/META-INF/spring
+      - ./config/esup-nfc-tag/context.xml:/usr/local/tomcat/webapps/ROOT/META-INF/context.xml
+      - ./config/esup-nfc-tag/persistence.xml:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/META-INF/persistence.xml
+    ports:
+      - 8305:8305
+      - 8309:8309
+
   db:
     build:
-      context: ./docker-postgres
+      context: ./docker/postgres
       dockerfile: Dockerfile
     restart: always
     environment:
@@ -26,8 +41,8 @@ services:
     ports:
       - 4432:5432
     volumes:
-      - ./postgres-config/init:/docker-entrypoint-initdb.d
-      - ./postgres-config/data:/var/lib/postgresql/data
+      - ./config/postgres/init:/docker-entrypoint-initdb.d
+      - ./config/postgres/data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
@@ -40,19 +55,29 @@ services:
       LDAP_DOMAIN: "univ-ville.fr"
     command: --copy-service
     volumes:
-      - ./ldap-config/eduperson.schema:/container/service/slapd/assets/config/bootstrap/schema/eduperson.schema
-      - ./ldap-config/schac.schema:/container/service/slapd/assets/config/bootstrap/schema/schac.schema
-      - ./ldap-config/supann-2021-10-01.schema:/container/service/slapd/assets/config/bootstrap/schema/supann-2021-10-01.schema
-      - ./ldap-config/data.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/data.ldif
+      - ./config/ldap/eduperson.schema:/container/service/slapd/assets/config/bootstrap/schema/eduperson.schema
+      - ./config/ldap/schac.schema:/container/service/slapd/assets/config/bootstrap/schema/schac.schema
+      - ./config/ldap/supann-2021-10-01.schema:/container/service/slapd/assets/config/bootstrap/schema/supann-2021-10-01.schema
+      - ./config/ldap/data.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/data.ldif
     ports:
       - 3890:389
 
-  front:
+  front-sgc:
     depends_on:
       - sgc
     build:
-      context: ./docker-apache-proxy
+      context: ./docker/apache-proxy
     volumes:
-      - ./apache-proxy-config/000-default.conf:/opt/proxy-conf/000-default.conf
+      - ./config/apache-proxy/esup-sgc/000-default.conf:/opt/proxy-conf/000-default.conf
     ports:
       - 8080:80
+
+  front-nfc-tag:
+    depends_on:
+      - nfc-tag
+    build:
+      context: ./docker/apache-proxy
+    volumes:
+      - ./config/apache-proxy/esup-nfc-tag/000-default.conf:/opt/proxy-conf/000-default.conf
+    ports:
+      - 8081:80
