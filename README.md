@@ -34,8 +34,8 @@ docker-compose -p sgc-stack up -d
 
 ## Fonctionnement
 
- * La base de données est persisté sous ```postgres-config/data```, pour repartir d'une base vierge, effacer ce dossier
- * Il n'y a pour l'instant pas d'authenfification, l'utilisateur connecté est à déclarer dans ```esup-sgc-config/spring/sgc.properties````
- * Toute la configuration de esup-sgc se fait au travers des fichiers ```esup-sgc-config/spring````
+ * La base de données est persistée sous ```postgres-config/data```, pour repartir d'une base vierge, effacer ce dossier
+ * Il n'y a pour l'instant pas d'authenfification, l'utilisateur connecté est à déclarer dans ```esup-sgc-config/spring/sgc.properties```
+ * Toute la configuration de esup-sgc se fait au travers des fichiers ```esup-sgc-config/spring```
  * Pour ajouter des utilisateurs, modifier le fichier ldif ```ldap-config/data.ldif```
- * La driver ORACLE est embarqué dans l'image de esup-sgc, vous permettant de faire fonctionner directement votre SqlUserInfoService sur APOGEE/SCOLARIX/... 
+ * La driver ORACLE est embarqué dans l'image de esup-sgc, vous permettant de faire fonctionner directement SqlUserInfoService sur APOGEE/SCOLARIX/... 
