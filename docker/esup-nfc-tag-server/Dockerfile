@@ -1,4 +1,4 @@
-FROM docker-proxy.devops.univ-lr.fr/tomcat:9.0.58-jre11-openjdk-bullseye
+FROM tomcat:9.0.58-jre11-openjdk-bullseye
 
 COPY esupNfcTagServer-*.war /usr/local/tomcat/webapps/ROOT.war
 RUN unzip /usr/local/tomcat/webapps/ROOT.war -d /usr/local/tomcat/webapps/ROOT
