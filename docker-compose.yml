@@ -1,25 +1,50 @@
 version: '3.8'
 services:
 
-  sgc:
-    depends_on:
-      db:
-        condition: service_healthy
-      openldap:
-        condition: service_started
-    image: esup-sgc
-    volumes:
-      - ./config/esup-sgc/spring:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/META-INF/spring
-      - ./config/esup-sgc/persistence.xml:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/META-INF/persistence.xml
+  traefik:
+    image: "traefik:v2.10"
+    container_name: "traefik"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
     ports:
-      - 8205:8205
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  esup-sgc-build:
+    depends_on:
+      esup-sgc-openldap:
+        condition: service_started    
+      esup-sgc-db:
+        condition: service_healthy  
+    build:
+        context: ./docker/esup-sgc
+        dockerfile: esup-sgc-build.dockerfile
+    user: "1000"
+    volumes:
+      - esup-sgc-vol:/opt/esup-sgc
+      
+  esup-sgc:
+    depends_on:
+      - esup-sgc-build
+    build:
+        context: ./docker/esup-sgc
+    volumes:
+      - esup-sgc-vol:/opt/esup-sgc
+      - ./docker/esup-sgc/server.xml:/usr/local/tomcat/conf/server.xml
+    ports:
       - 8209:8209
 
-  nfc-tag:
+  esup-nfc-tag:
     depends_on:
-      db:
+      esup-sgc-db:
         condition: service_healthy
-      openldap:
+      esup-sgc-openldap:
         condition: service_started
     image: esup-nfc-tag
     volumes:
@@ -27,13 +52,11 @@ services:
       - ./config/esup-nfc-tag/context.xml:/usr/local/tomcat/webapps/ROOT/META-INF/context.xml
       - ./config/esup-nfc-tag/persistence.xml:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/META-INF/persistence.xml
     ports:
-      - 8305:8305
       - 8309:8309
 
-  db:
+  esup-sgc-db:
     build:
       context: ./docker/postgres
-      dockerfile: Dockerfile
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
@@ -42,14 +65,13 @@ services:
       - 4432:5432
     volumes:
       - ./config/postgres/init:/docker-entrypoint-initdb.d
-      - ./config/postgres/data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  openldap:
+  esup-sgc-openldap:
     image: osixia/openldap:1.5.0
     environment:
       LDAP_DOMAIN: "univ-ville.fr"
@@ -62,22 +84,46 @@ services:
     ports:
       - 3890:389
 
-  front-sgc:
+  esup-sgc-front:
     depends_on:
-      - sgc
+      - esup-sgc
     build:
       context: ./docker/apache-proxy
-    volumes:
-      - ./config/apache-proxy/esup-sgc/000-default.conf:/opt/proxy-conf/000-default.conf
+    environment:
+      ####### APACHE SECTION #######
+      - SERVICE_TO_PROTECT=esup-sgc
+      - SERVICE_PORT=8209
+      ####### SHIBBOLETH SECTION #######
+      - HOSTNAME=esup-sgc-front
+      - IDP_ENTITY_ID=http://localhost:8082/idp/shibboleth
+      - IDP_METADATA_URL=http://esup-sgc-shib-idp/idp/shibboleth
+      - SHIB_METADATA_BACKUP_URL=http://esup-sgc-front/saml/idp
+      - SHIB_DOWNLOAD_METADATA=true
     ports:
       - 8080:80
 
-  front-nfc-tag:
+  esup-sgc-shib-idp:
+    build:
+      context: ./docker/shib-idp
+    ports:
+      - 8082:80
+      
+  esup-nfc-front:
     depends_on:
-      - nfc-tag
+      - esup-nfc-tag
     build:
       context: ./docker/apache-proxy
-    volumes:
-      - ./config/apache-proxy/esup-nfc-tag/000-default.conf:/opt/proxy-conf/000-default.conf
     ports:
       - 8081:80
+
+volumes:
+  esup-sgc-vol:
+    driver_opts:
+      type: none
+      device: ${PWD}/esup-sgc
+      o: bind
+  esup-nfc-tag-server-vol:
+    driver_opts:
+      type: none
+      device: ${PWD}/esup-nfc-tag-server
+      o: bind          

@@ -1,29 +1,17 @@
-#Choose Debian
-FROM debian:latest
+FROM jefferyb/shibboleth-sp
 
-#Don't ask questions during install
-ENV DEBIAN_FRONTEND noninteractive
+RUN a2enmod proxy_ajp 
 
-#Install apache2 and enable proxy mode
-RUN apt update \
-    && apt -y install \
-    apache2 \
-    nano
+CMD \
+  ansible-playbook /opt/playbooks/shibboleth-playbook.yaml --diff && \
+  sed -i 's$ProxyPass / http$ProxyPass / ajp$' /etc/apache2/sites-enabled/000-default.conf && \
+  sed -i '/ProxyPassReverse/d' /etc/apache2/sites-enabled/000-default.conf && \
+  sed -i '/ProxyPreserveHost /a ProxyPass /Shibboleth.sso !' /etc/apache2/sites-enabled/000-default.conf && \
+  sed -i '/<\/Location/a <Location /Shibboleth.sso>\nShibRequestSetting requireSession 0\nrequire all granted\n</Location>' /etc/apache2/sites-enabled/000-default.conf && \
+  sed -i 's/handlerSSL="true"/handlerSSL="false"/' /etc/shibboleth/shibboleth2.xml && \
+  sed -i 's/https/http/' /etc/shibboleth/shibboleth2.xml && \  
+  apache2ctl restart && \
+  /etc/init.d/shibd restart && \  
+  tail -f /var/log/apache2/*.log /var/log/shibboleth/*.log 
 
-RUN a2enmod proxy \
-    && a2enmod proxy_http \
-    && a2enmod proxy_ajp \
-    #    && a2enmod ssl \
-    && a2enmod rewrite \
-    && service apache2 stop
 
-#Ports
-EXPOSE 80 443
-
-#Volumes
-VOLUME /opt/proxy-conf
-
-#Launch Apache2 on FOREGROUND
-COPY apache-proxy-start.sh /opt/
-RUN chmod +x /opt/apache-proxy-start.sh
-ENTRYPOINT ["/opt/apache-proxy-start.sh"]
