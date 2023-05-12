@@ -25,17 +25,25 @@ services:
     ports:
       - 8209:8209
 
-  esup-nfc-tag:
+  esup-nfc-tag-build:
     depends_on:
       esup-sgc-db:
-        condition: service_healthy
-      esup-sgc-openldap:
-        condition: service_started
-    image: esup-nfc-tag
+        condition: service_healthy  
+    build:
+        context: ./docker/esup-nfc-tag-server
+        dockerfile: esup-nfc-tag-build.dockerfile
+    user: "1000"
     volumes:
-      - ./config/esup-nfc-tag/spring:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/META-INF/spring
-      - ./config/esup-nfc-tag/context.xml:/usr/local/tomcat/webapps/ROOT/META-INF/context.xml
-      - ./config/esup-nfc-tag/persistence.xml:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/META-INF/persistence.xml
+      - esup-nfc-tag-server-vol:/opt/esup-nfc-tag-server
+
+  esup-nfc-tag:
+    depends_on:
+      - esup-nfc-tag-build
+    build:
+        context: ./docker/esup-nfc-tag-server
+    volumes:
+      - ./docker/esup-sgc/server.xml:/usr/local/tomcat/conf/server.xml
+      - esup-nfc-tag-server-vol:/opt/esup-nfc-tag-server      
     ports:
       - 8309:8309
 
@@ -86,10 +94,18 @@ services:
       - SHIB_DOWNLOAD_METADATA=true
     ports:
       - 8080:80
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f -LI http://esup-sgc-front/Shibboleth.sso/Metadata" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5      
 
   esup-sgc-shib-idp:
     build:
       context: ./docker/shib-idp
+    depends_on:
+      esup-sgc-front:
+        condition: service_healthy        
     ports:
       - 8082:80
       

@@ -12,7 +12,10 @@ CMD \
   sed -i 's/https/http/' /etc/shibboleth/shibboleth2.xml && \
   sed -i 's|signing="false"/>|signing="false"><EndpointBase>http://localhost:8080/Shibboleth.sso</EndpointBase></Handler>|' /etc/shibboleth/shibboleth2.xml && \    
   apache2ctl restart && \
-  /etc/init.d/shibd restart && \  
-  tail -f /var/log/apache2/*.log /var/log/shibboleth/*.log 
+  /etc/init.d/shibd restart && \
+  # IDP demande les metadata -> il est ok -> on recharge les metadata cote SP
+  bash -c "fgrep -m 1 'GET /Shibboleth.sso/Metadata' <(tail -n 0 -f /var/log/apache2/access.log) && /etc/init.d/shibd restart" && \
+  tail -f /var/log/apache2/*.log /var/log/shibboleth/*.log
+
 
 
