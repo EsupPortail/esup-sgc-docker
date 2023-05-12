@@ -13,10 +13,16 @@ services:
     user: "1000"
     volumes:
       - esup-sgc-vol:/opt/esup-sgc
+    healthcheck:
+      test: [ "CMD-SHELL", "psql -qtAX postgresql://postgres:postgres@esup-sgc-db:5432/esupsgc -c \"SELECT EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename  = 'appli_config');\" | grep -c 't' > /dev/null" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5      
       
   esup-sgc:
     depends_on:
-      - esup-sgc-build
+      esup-sgc-build:
+          condition: service_healthy
     build:
         context: ./docker/esup-sgc
     volumes:
