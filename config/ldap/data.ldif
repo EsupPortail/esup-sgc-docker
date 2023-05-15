@@ -81,4 +81,11 @@ objectClass: groupOfNames
 objectClass: top
 cn: for.esup-sgc.user
 member: uid=user,ou=people,dc=univ-ville,dc=fr
+member: uid=adminsgc,ou=people,dc=univ-ville,dc=fr
 
+dn: cn=for.esup-nfc-tag.admin,ou=groups,dc=univ-ville,dc=fr
+changetype: add
+objectClass: groupOfNames
+objectClass: top
+cn: for.esup-nfc-tag.admin
+member: uid=adminsgc,ou=people,dc=univ-ville,dc=fr

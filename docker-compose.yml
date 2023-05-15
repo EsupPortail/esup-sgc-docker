@@ -48,7 +48,7 @@ services:
     build:
         context: ./docker/esup-nfc-tag-server
     volumes:
-      - ./docker/esup-sgc/server.xml:/usr/local/tomcat/conf/server.xml
+      - ./docker/esup-nfc-tag-server/server.xml:/usr/local/tomcat/conf/server.xml
       - esup-nfc-tag-server-vol:/opt/esup-nfc-tag-server      
     ports:
       - 8309:8309
@@ -87,7 +87,7 @@ services:
     depends_on:
       - esup-sgc
     build:
-      context: ./docker/apache-proxy
+      context: ./docker/esup-sgc-front
     environment:
       ####### APACHE SECTION #######
       - SERVICE_TO_PROTECT=esup-sgc
@@ -111,17 +111,34 @@ services:
       context: ./docker/shib-idp
     depends_on:
       esup-sgc-front:
-        condition: service_healthy        
+        condition: service_healthy
+      esup-nfc-tag-front:
+        condition: service_healthy                
     ports:
       - 8082:80
-      
-  esup-nfc-front:
+
+  esup-nfc-tag-front:
     depends_on:
       - esup-nfc-tag
     build:
-      context: ./docker/apache-proxy
+      context: ./docker/esup-nfc-tag-front
+    environment:
+      ####### APACHE SECTION #######
+      - SERVICE_TO_PROTECT=esup-nfc-tag
+      - SERVICE_PORT=8309
+      ####### SHIBBOLETH SECTION #######
+      - HOSTNAME=esup-nfc-tag-front
+      - IDP_ENTITY_ID=http://localhost:8082/idp/shibboleth
+      - IDP_METADATA_URL=http://esup-sgc-shib-idp/idp/shibboleth
+      - SHIB_METADATA_BACKUP_URL=http://esup-nfc-tag-front/saml/idp
+      - SHIB_DOWNLOAD_METADATA=true
     ports:
       - 8081:80
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f -LI http://esup-nfc-tag-front/Shibboleth.sso/Metadata" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   esup-sgc-vol:

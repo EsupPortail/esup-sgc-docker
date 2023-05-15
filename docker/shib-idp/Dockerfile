@@ -15,6 +15,6 @@ sed -i '/<\/AttributeFilterPolicyGroup>/i<AttributeFilterPolicy id="releaseToAny
 sed -i 's|https://idp\.example\.org|http://localhost:8082|' /opt/shibboleth-idp/conf/idp.properties /opt/shibboleth-idp/metadata/idp-metadata.xml && \
 sed -i 's|example\.org|univ-ville.fr|' /opt/shibboleth-idp/conf/idp.properties /opt/shibboleth-idp/metadata/idp-metadata.xml && \
 sed -i 's/2023-03/2123-03/' /opt/shibboleth-idp/metadata/idp-metadata.xml && \
-sed -i '/<\/MetadataProvider>/i <MetadataProvider id="LocalMetadata"  xsi:type="FileBackedHTTPMetadataProvider" backingFile="/tmp/esup-sgc.xml" metadataURL="http://esup-sgc-front/Shibboleth.sso/Metadata"/>' /opt/shibboleth-idp/conf/metadata-providers.xml && \
+sed -i '/<\/MetadataProvider>/i <MetadataProvider id="EsupSgcMetadata"  xsi:type="FileBackedHTTPMetadataProvider" backingFile="/tmp/esup-sgc.xml" metadataURL="http://esup-sgc-front/Shibboleth.sso/Metadata"/> <MetadataProvider id="EsupNfcMetadata"  xsi:type="FileBackedHTTPMetadataProvider" backingFile="/tmp/esup-nfc-tag.xml" metadataURL="http://esup-nfc-tag-front/Shibboleth.sso/Metadata"/>' /opt/shibboleth-idp/conf/metadata-providers.xml && \
 /usr/bin/startup.sh 
 
