@@ -63,7 +63,7 @@ services:
     ports:
       - 4432:5432
     volumes:
-      - ./config/postgres/init:/docker-entrypoint-initdb.d
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
@@ -76,10 +76,10 @@ services:
       LDAP_DOMAIN: "univ-ville.fr"
     command: --copy-service
     volumes:
-      - ./config/ldap/eduperson.schema:/container/service/slapd/assets/config/bootstrap/schema/eduperson.schema
-      - ./config/ldap/schac.schema:/container/service/slapd/assets/config/bootstrap/schema/schac.schema
-      - ./config/ldap/supann-2021-10-01.schema:/container/service/slapd/assets/config/bootstrap/schema/supann-2021-10-01.schema
-      - ./config/ldap/data.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/data.ldif
+      - ./docker/ldap/eduperson.schema:/container/service/slapd/assets/config/bootstrap/schema/eduperson.schema
+      - ./docker/ldap/schac.schema:/container/service/slapd/assets/config/bootstrap/schema/schac.schema
+      - ./docker/ldap/supann-2021-10-01.schema:/container/service/slapd/assets/config/bootstrap/schema/supann-2021-10-01.schema
+      - ./docker/ldap/data.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/data.ldif
     ports:
       - 3890:389
 
