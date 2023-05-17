@@ -13,6 +13,7 @@ services:
     user: "1000"
     volumes:
       - esup-sgc-vol:/opt/esup-sgc
+      - m2-vol:/root/.m2      
     healthcheck:
       test: [ "CMD-SHELL", "psql -qtAX postgresql://postgres:postgres@esup-sgc-db:5432/esupsgc -c \"SELECT EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename  = 'appli_config');\" | grep -c 't' > /dev/null" ]
       interval: 5s
@@ -41,6 +42,7 @@ services:
     user: "1000"
     volumes:
       - esup-nfc-tag-server-vol:/opt/esup-nfc-tag-server
+      - m2-vol:/root/.m2      
 
   esup-nfc-tag:
     depends_on:
@@ -49,7 +51,7 @@ services:
         context: ./docker/esup-nfc-tag-server
     volumes:
       - ./docker/esup-nfc-tag-server/server.xml:/usr/local/tomcat/conf/server.xml
-      - esup-nfc-tag-server-vol:/opt/esup-nfc-tag-server      
+      - esup-nfc-tag-server-vol:/opt/esup-nfc-tag-server
     ports:
       - 8309:8309
 
@@ -140,14 +142,42 @@ services:
       timeout: 5s
       retries: 5
 
+  esup-sgc-client:
+    depends_on:
+      - esup-sgc-shib-idp
+    build:
+        context: ./docker/esup-sgc-client
+    volumes:    
+      - esup-sgc-client-vol:/opt/esup-sgc-client
+      - m2-vol:/root/.m2
+      - dev-bus-vol:/dev/bus
+    environment:
+      - DISPLAY=${DISPLAY}
+    network_mode: host
+
 volumes:
   esup-sgc-vol:
     driver_opts:
       type: none
       device: ${PWD}/esup-sgc
       o: bind
+  esup-sgc-client-vol:
+    driver_opts:
+      type: none
+      device: ${PWD}/esup-sgc-client
+      o: bind      
   esup-nfc-tag-server-vol:
     driver_opts:
       type: none
       device: ${PWD}/esup-nfc-tag-server
+      o: bind
+  dev-bus-vol:
+    driver_opts:
+      type: none
+      device: /dev/bus
       o: bind          
+  m2-vol:
+    driver_opts:
+      type: none
+      device: ${HOME}/.m2
+      o: bind
