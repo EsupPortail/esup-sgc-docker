@@ -20,5 +20,7 @@ sed -i 's/localhost/esup-sgc-db/' src/main/resources/META-INF/spring/database.pr
 && sed -i 's/update/create/' src/main/resources/META-INF/persistence.xml \
 && mvn compile exec:java -Dexec.args="dbupgrade" \
 && git checkout HEAD -f src/main/resources/META-INF/persistence.xml ;\
-mvn package && rm -rf target/ROOT && mv target/$(git describe --tags --abbrev=0 | sed 's/esup-//') target/ROOT \
+git config --global --add safe.directory /opt/esup-sgc ; \
+mvn package && rm -rf target/ROOT \
+&& mv target/$(git describe --tags --abbrev=0 | sed 's/esup-//') target/ROOT \
 && tail -f /dev/null

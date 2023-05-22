@@ -10,7 +10,7 @@ CMD \
   sed -i '/<\/Location/a <Location /Shibboleth.sso>\nShibRequestSetting requireSession 0\nrequire all granted\n</Location>' /etc/apache2/sites-enabled/000-default.conf && \
   sed -i 's/handlerSSL="true"/handlerSSL="false"/' /etc/shibboleth/shibboleth2.xml && \
   sed -i 's/https/http/' /etc/shibboleth/shibboleth2.xml && \
-  sed -i 's|signing="false"/>|signing="false"><EndpointBase>http://localhost:8080/Shibboleth.sso</EndpointBase></Handler>|' /etc/shibboleth/shibboleth2.xml && \    
+  sed -i 's|signing="false"/>|signing="false"><EndpointBase>http://esup-sgc.localhost/Shibboleth.sso</EndpointBase></Handler>|' /etc/shibboleth/shibboleth2.xml && \    
   apache2ctl restart && \
   /etc/init.d/shibd restart && \
   # IDP demande les metadata -> il est ok -> on recharge les metadata cote SP

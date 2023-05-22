@@ -1,6 +1,16 @@
 version: '3.8'
 services:
 
+  esup-sgc-reverse-proxy:
+    image: traefik:v2.10
+    command: --api.insecure=true --providers.docker --providers.docker.exposedbydefault=false --entrypoints.web.address=:80
+    ports:
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "7080:8080"      
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      
   esup-sgc-build:
     depends_on:
       esup-sgc-openldap:
@@ -10,7 +20,6 @@ services:
     build:
         context: ./docker/esup-sgc
         dockerfile: esup-sgc-build.dockerfile
-    user: "1000"
     volumes:
       - esup-sgc-vol:/opt/esup-sgc
       - m2-vol:/root/.m2      
@@ -20,7 +29,7 @@ services:
       timeout: 5s
       retries: 5      
       
-  esup-sgc:
+  esup-sgc-app:
     depends_on:
       esup-sgc-build:
           condition: service_healthy
@@ -29,8 +38,6 @@ services:
     volumes:
       - esup-sgc-vol:/opt/esup-sgc
       - ./docker/esup-sgc/server.xml:/usr/local/tomcat/conf/server.xml
-    ports:
-      - 8209:8209
 
   esup-nfc-tag-build:
     depends_on:
@@ -39,12 +46,11 @@ services:
     build:
         context: ./docker/esup-nfc-tag-server
         dockerfile: esup-nfc-tag-build.dockerfile
-    user: "1000"
     volumes:
       - esup-nfc-tag-server-vol:/opt/esup-nfc-tag-server
       - m2-vol:/root/.m2      
 
-  esup-nfc-tag:
+  esup-nfc-tag-app:
     depends_on:
       - esup-nfc-tag-build
     build:
@@ -52,8 +58,6 @@ services:
     volumes:
       - ./docker/esup-nfc-tag-server/server.xml:/usr/local/tomcat/conf/server.xml
       - esup-nfc-tag-server-vol:/opt/esup-nfc-tag-server
-    ports:
-      - 8309:8309
 
   esup-sgc-db:
     build:
@@ -86,62 +90,71 @@ services:
       - 3890:389
 
   esup-sgc-front:
+    hostname: esup-sgc.localhost  
     depends_on:
-      - esup-sgc
+      - esup-sgc-app
     build:
       context: ./docker/esup-sgc-front
     environment:
       ####### APACHE SECTION #######
-      - SERVICE_TO_PROTECT=esup-sgc
+      - SERVICE_TO_PROTECT=esup-sgc-app
       - SERVICE_PORT=8209
       ####### SHIBBOLETH SECTION #######
-      - HOSTNAME=esup-sgc-front
-      - IDP_ENTITY_ID=http://localhost:8082/idp/shibboleth
-      - IDP_METADATA_URL=http://esup-sgc-shib-idp/idp/shibboleth
-      - SHIB_METADATA_BACKUP_URL=http://esup-sgc-front/saml/idp
+      - HOSTNAME=esup-sgc.localhost
+      - IDP_ENTITY_ID=http://idp.localhost/idp/shibboleth
+      - IDP_METADATA_URL=http://idp.localhost/idp/shibboleth
+      - SHIB_METADATA_BACKUP_URL=http://esup-sgc.localhost/saml/idp
       - SHIB_DOWNLOAD_METADATA=true
-    ports:
-      - 8080:80
     healthcheck:
-      test: [ "CMD-SHELL", "curl -f -LI http://esup-sgc-front/Shibboleth.sso/Metadata" ]
+      test: [ "CMD-SHELL", "curl -f -LI http://esup-sgc.localhost/Shibboleth.sso/Metadata" ]
       interval: 5s
       timeout: 5s
-      retries: 5      
-
+      retries: 5
+    labels:
+      - traefik.http.routers.esup-sgc-front.rule=Host(`esup-sgc.localhost`)
+      - traefik.http.services.esup-sgc-front.loadbalancer.server.port=80      
+      - traefik.enable=true
+      
   esup-sgc-shib-idp:
+    hostname: idp.localhost
     build:
       context: ./docker/shib-idp
     depends_on:
       esup-sgc-front:
         condition: service_healthy
       esup-nfc-tag-front:
-        condition: service_healthy                
-    ports:
-      - 8082:80
+        condition: service_healthy
+    labels:
+      - traefik.http.routers.esup-sgc-shib-idp.rule=Host(`idp.localhost`)
+      - traefik.http.services.esup-sgc-shib-idp.loadbalancer.server.port=80
+      - traefik.enable=true
 
   esup-nfc-tag-front:
+    hostname: esup-nfc-tag.localhost    
     depends_on:
-      - esup-nfc-tag
+      - esup-nfc-tag-app
     build:
       context: ./docker/esup-nfc-tag-front
     environment:
       ####### APACHE SECTION #######
-      - SERVICE_TO_PROTECT=esup-nfc-tag
+      - SERVICE_TO_PROTECT=esup-nfc-tag-app
       - SERVICE_PORT=8309
       ####### SHIBBOLETH SECTION #######
-      - HOSTNAME=esup-nfc-tag-front
-      - IDP_ENTITY_ID=http://localhost:8082/idp/shibboleth
-      - IDP_METADATA_URL=http://esup-sgc-shib-idp/idp/shibboleth
-      - SHIB_METADATA_BACKUP_URL=http://esup-nfc-tag-front/saml/idp
+      - HOSTNAME=esup-nfc-tag.localhost
+      - IDP_ENTITY_ID=http://idp.localhost/idp/shibboleth
+      - IDP_METADATA_URL=http://idp.localhost/idp/shibboleth
+      - SHIB_METADATA_BACKUP_URL=http://esup-nfc-tag.localhost/saml/idp
       - SHIB_DOWNLOAD_METADATA=true
-    ports:
-      - 8081:80
     healthcheck:
-      test: [ "CMD-SHELL", "curl -f -LI http://esup-nfc-tag-front/Shibboleth.sso/Metadata" ]
+      test: [ "CMD-SHELL", "curl -f -LI http://esup-nfc-tag.localhost/Shibboleth.sso/Metadata" ]
       interval: 5s
       timeout: 5s
       retries: 5
-
+    labels:
+      - traefik.http.routers.esup-nfc-tag-front.rule=Host(`esup-nfc-tag.localhost`)
+      - traefik.http.services.esup-nfc-tag-front.loadbalancer.server.port=80            
+      - traefik.enable=true
+      
   esup-sgc-client:
     depends_on:
       - esup-sgc-shib-idp
@@ -151,8 +164,9 @@ services:
       - esup-sgc-client-vol:/opt/esup-sgc-client
       - m2-vol:/root/.m2
       - dev-bus-vol:/dev/bus
+      - tmp-x11-vol:/tmp/.X11-unix
     environment:
-      - DISPLAY=${DISPLAY}
+      - DISPLAY=:0
     network_mode: host
 
 volumes:
@@ -180,4 +194,9 @@ volumes:
     driver_opts:
       type: none
       device: ${HOME}/.m2
+      o: bind
+  tmp-x11-vol:
+    driver_opts:
+      type: none
+      device: /tmp/.X11-unix
       o: bind
