@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to ESUP-Portail under one or more contributor license
+    agreements. See the NOTICE file distributed with this work for
+    additional information regarding copyright ownership.
+
+    ESUP-Portail licenses this file to you under the Apache License,
+    Version 2.0 (the "License"); you may not use this file except in
+    compliance with the License. You may obtain a copy of the License at:
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<beans:beans xmlns="http://www.springframework.org/schema/security" 
+             xmlns:beans="http://www.springframework.org/schema/beans" 
+             xmlns:util="http://www.springframework.org/schema/util"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+             					 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+                                 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+    
+    
+    <!-- HTTP security configurations -->
+    <http disable-url-rewriting="true" use-expressions="true" entry-point-ref="http403EntryPoint">
+		<intercept-url pattern="/wsrest/**" access="hasIpAddress('127.0.0.1')" /> <!-- Esup-SGC IP Address -->
+    	    <intercept-url pattern="/wsrestdam/**" access="hasIpAddress('127.0.0.1')" />
+	    <intercept-url pattern="/admin/**" access="hasRole('ROLE_ADMIN')" />
+	    <intercept-url pattern="/manager" access="isAuthenticated()" />
+	    <intercept-url pattern="/manager/taglogs" access="hasRole('ROLE_SUPERVISOR') or hasRole('ROLE_ADMIN')" />
+	    <intercept-url pattern="/manager/**" access="hasRole('ROLE_ADMIN')" />
+	    <intercept-url pattern="/nfc/**" access="isAuthenticated()" />
+	    <intercept-url pattern="/**" access="permitAll" />
+		<access-denied-handler error-page="/denied" />
+		<session-management session-authentication-strategy-ref="sas" />
+		<custom-filter before="FIRST" ref="devClientRequestFilter"/>
+		<custom-filter position="PRE_AUTH_FILTER" ref="shibFilter"/>
+		<custom-filter ref="concurrencyFilter" position="CONCURRENT_SESSION_FILTER" />
+		<logout logout-success-url="/" />
+	    	<csrf disabled="true"/>
+    </http>
+
+    <beans:bean id="http403EntryPoint" class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint"/>
+    
+    <beans:bean id="authEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+		<beans:constructor-arg value="/"/>
+    </beans:bean>
+    
+    <beans:bean id="shibFilter" class="org.esupportail.nfctag.security.ShibRequestHeaderAuthenticationFilter">
+		<beans:property name="principalRequestHeader" value="REMOTE_USER"/>
+		<beans:property name="credentialsRequestHeader" value="MEMBER"/>
+		<beans:property name="exceptionIfHeaderMissing" value="false"/>
+		<beans:property name="authenticationManager" ref="authenticationManager" />
+    </beans:bean>
+
+    <authentication-manager alias="authenticationManager">
+		<authentication-provider ref="preauthAuthProvider" />	
+    </authentication-manager>
+    
+    <beans:bean id="preauthAuthProvider" class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
+		<beans:property name="preAuthenticatedUserDetailsService" ref="authUserDetailsService"/>
+		<beans:property name="throwExceptionWhenTokenRejected" value="true"/>
+    </beans:bean>
+
+    <beans:bean id="concurrencyFilter"
+		class="org.springframework.security.web.session.ConcurrentSessionFilter">
+		<beans:constructor-arg ref="sessionRegistry"/>
+		<beans:constructor-arg value="/"/>
+    </beans:bean>
+
+    <beans:bean id="sas"
+		class="org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy">
+		<beans:constructor-arg name="sessionRegistry" ref="sessionRegistry" />
+    </beans:bean>
+
+    <beans:bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />
+
+
+	<beans:bean id="authUserDetailsService"
+		class="org.esupportail.nfctag.security.ShibAuthenticatedUserDetailsService">
+		<beans:property name="mappingGroupesRoles" ref="nfcMappingGroupesRoles"/>
+		<beans:property name="ldapGroup2UserRoleService" ref="ldapGroup2UserRoleService"/>
+	</beans:bean>
+    
+     	
+    <beans:bean id="ldapContextSourcePool" class="org.springframework.ldap.pool.factory.PoolingContextSource">
+      <beans:property name="contextSource" ref="ldapContextSource" />
+      <beans:property name="dirContextValidator" ref="dirContextValidator"/>
+      <beans:property name="testWhileIdle" value="true"/>
+      <beans:property name="testOnBorrow" value="true"/>
+   </beans:bean>
+   
+   <beans:bean id="dirContextValidator"
+            class="org.springframework.ldap.pool.validation.DefaultDirContextValidator"/>
+	
+    <beans:bean id="ldapContextSource"
+		class="org.springframework.ldap.core.support.LdapContextSource">
+		<beans:property name="url" value="ldap://my-ldap" />
+		<beans:property name="base" value="dc=univ-ville,dc=fr" />
+		<beans:property name="userDn" value="cn=admin,dc=univ-ville,dc=fr" />
+		<beans:property name="password" value="esup" />
+	</beans:bean>    
+	
+	<beans:bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
+		<beans:constructor-arg ref="ldapContextSourcePool" />
+	</beans:bean>
+	
+	
+	<beans:bean id="ldapGroup2UserRoleService"
+		class="org.esupportail.nfctag.security.LdapGroup2UserRoleService">
+		<beans:property name="mappingGroupesRoles" ref="nfcMappingGroupesRoles"/>
+		<beans:property name="groupService" ref="groupService"/>
+	</beans:bean>
+	
+		
+	<beans:bean id="groupService" class="org.esupportail.nfctag.security.LdapGroupService">
+		<beans:property name="ldapTemplate" ref="ldapTemplate"/>
+		<beans:property name="groupSearchBase" value="ou=groups" />
+		<beans:property name="groupSearchFilter" value="member={0}"/>
+	</beans:bean>
+	
+	<util:map id="nfcMappingGroupesRoles">
+			<beans:entry key="cn=for.esup-nfc-tag.admin,ou=groups,dc=univ-ville,dc=fr" value="ROLE_ADMIN" />
+			<beans:entry key="cn=for.esup-nfc-tag.supervisor,ou=groups,dc=univ-ville,dc=fr" value="ROLE_SUPERVISOR" />
+	</util:map>
+	
+	
+</beans:beans>

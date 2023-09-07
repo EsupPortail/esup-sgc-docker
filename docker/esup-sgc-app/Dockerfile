@@ -1,4 +1,4 @@
-FROM tomcat:9.0.58-jre11-openjdk-bullseye
+FROM tomcat:9.0.64-jre11-openjdk-bullseye
 
 EXPOSE 8209
 

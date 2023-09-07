@@ -1,22 +1,3 @@
 FROM i2incommon/shib-idp:4.3.1_20230330
 
 EXPOSE 80/tcp
-
-CMD touch /tmp/toto.txt && \
-sed	-i 's/<Service name="Catalina">/<Service name="Catalina"><Connector protocol="org.apache.coyote.http11.Http11NioProtocol" port="80" maxThreads="200"\/>/' /usr/local/tomcat/conf/server.xml && \
-cp /opt/shibboleth-idp/conf/examples/attribute-resolver-ldap.xml /opt/shibboleth-idp/conf/attribute-resolver.xml && \
-sed -i 's|#idp.authn.LDAP.authenticator.*|idp.authn.LDAP.authenticator=directAuthenticator|' /opt/shibboleth-idp/conf/ldap.properties && \
-sed -i 's|ldap://localhost:10389|ldap://esup-sgc-openldap:389|' /opt/shibboleth-idp/conf/ldap.properties && \
-sed -i 's|dc=example,dc=org|dc=univ-ville,dc=fr|' /opt/shibboleth-idp/conf/ldap.properties && \
-sed -i '/idp\.authn\.LDAP\.ldapURL=/aidp.authn.LDAP.useStartTLS=false' /opt/shibboleth-idp/conf/ldap.properties && \
-sed -i 's/idp\.attribute\.resolver\.LDAP\.bindDN=.*/idp.attribute.resolver.LDAP.bindDN=cn=admin,dc=univ-ville,dc=fr/' /opt/shibboleth-idp/conf/ldap.properties && \
-sed -i '/idp\.attribute\.resolver\.LDAP\.bindDN=.*/aidp.attribute.resolver.LDAP.bindDNCredential=esup' /opt/shibboleth-idp/conf/ldap.properties && \
-sed -i '/trustFile=/d' /opt/shibboleth-idp/conf/attribute-resolver.xml && \
-sed -i '/<\/AttributeResolver>/i<AttributeDefinition xsi:type="Prescoped" id="eduPersonPrincipalName"><InputDataConnector ref="myLDAP" attributeNames="eduPersonPrincipalName"/></AttributeDefinition>' /opt/shibboleth-idp/conf/attribute-resolver.xml && \
-sed -i '/<\/AttributeFilterPolicyGroup>/i<AttributeFilterPolicy id="releaseToAnyone"><PolicyRequirementRule xsi:type="ANY"/><AttributeRule attributeID="eduPersonPrincipalName"><PermitValueRule xsi:type="ANY"/></AttributeRule></AttributeFilterPolicy>' /opt/shibboleth-idp/conf/attribute-filter.xml && \
-sed -i 's|https://idp\.example\.org|http://idp.localhost|' /opt/shibboleth-idp/conf/idp.properties /opt/shibboleth-idp/metadata/idp-metadata.xml && \
-sed -i 's|example\.org|univ-ville.fr|' /opt/shibboleth-idp/conf/idp.properties /opt/shibboleth-idp/metadata/idp-metadata.xml && \
-sed -i 's/2023-03/2123-03/' /opt/shibboleth-idp/metadata/idp-metadata.xml && \
-sed -i '/<\/MetadataProvider>/i <MetadataProvider id="EsupSgcMetadata"  xsi:type="FileBackedHTTPMetadataProvider" backingFile="/tmp/esup-sgc.xml" metadataURL="http://esup-sgc.localhost/Shibboleth.sso/Metadata"/> <MetadataProvider id="EsupNfcMetadata"  xsi:type="FileBackedHTTPMetadataProvider" backingFile="/tmp/esup-nfc-tag.xml" metadataURL="http://esup-nfc-tag.localhost/Shibboleth.sso/Metadata"/>' /opt/shibboleth-idp/conf/metadata-providers.xml && \
-/usr/bin/startup.sh 
-
