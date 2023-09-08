@@ -10,17 +10,10 @@ RUN sed -i -e 's/# fr_FR.UTF-8 UTF-8/fr_FR.UTF-8 UTF-8/' /etc/locale.gen && \
     update-locale LANG=fr_FR.UTF-8
 
 ENV LANG fr_FR.UTF-8
-ENV GIT_ESUPSGC_URL https://github.com/EsupPortail/esup-sgc.git
-ENV GIT_ESUPSGC_TAG esup-sgc-2.0.0
+ENV GIT_REPO_URL https://github.com/EsupPortail/esup-sgc.git
+ENV GIT_REPO_TAG esup-sgc-2.0.0
+ENV DST_DIR /opt/esup-sgc
 
-WORKDIR /opt/esup-sgc
+WORKDIR $DST_DIR
 
-CMD git clone $GIT_ESUPSGC_URL . \
-&& git checkout -b $GIT_ESUPSGC_TAG $(git describe --tags --abbrev=0) \
-&& ln -sf /docker-config/applicationContext-services.xml /opt/esup-sgc/src/main/resources/META-INF/spring/applicationContext-services.xml \
-&& ln -sf /docker-config/database.properties /opt/esup-sgc/src/main/resources/META-INF/spring/database.properties \
-&& ln -sf /docker-config/persistence.xml /opt/esup-sgc/src/main/resources/META-INF/persistence.xml \
-&& mvn compile exec:java -Dexec.args="dbupgrade" \
-&& mvn package && rm -rf target/ROOT \
-&& mv target/$(git describe --tags --abbrev=0 | sed 's/esup-//') target/ROOT \
-&& tail -f /dev/null
+CMD [ "/docker-config/start-docker.sh" ]
