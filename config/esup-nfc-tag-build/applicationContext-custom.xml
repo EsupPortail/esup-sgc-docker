@@ -96,68 +96,68 @@
     <!-- ##########  ESUP SGC PART ############ -->
 
     <bean id="esupSgcExtApi" class="org.esupportail.nfctag.service.api.impl.AppliExtRestWs">
-    	<property name="isTagableUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/isTagable"/>
-    	<property name="validateTagUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/validateTag"/>
-    	<property name="getLocationsUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/locations"/>
+    	<property name="isTagableUrl" value="http://esup-sgc.localhost/wsrest/nfc/isTagable"/>
+    	<property name="validateTagUrl" value="http://esup-sgc.localhost/wsrest/nfc/validateTag"/>
+    	<property name="getLocationsUrl" value="http://esup-sgc.localhost/wsrest/nfc/locations"/>
     	<property name="description" value="Web Service Esup SGC"/>
     </bean>
 
 	<bean id="esupSgcUpdateExtApi" class="org.esupportail.nfctag.service.api.impl.AppliExtRestWs">
-        <property name="isTagableUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/isTagable"/>
-        <property name="validateTagUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/validateTag"/>
-        <property name="getLocationsUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/locationsUpdater"/>
+        <property name="isTagableUrl" value="http://esup-sgc.localhost/wsrest/nfc/isTagable"/>
+        <property name="validateTagUrl" value="http://esup-sgc.localhost/wsrest/nfc/validateTag"/>
+        <property name="getLocationsUrl" value="http://esup-sgc.localhost/wsrest/nfc/locationsUpdater"/>
         <property name="description" value="Web Service Update Esup SGC"/>
     </bean>
 
     <bean id="esupSgcSearchExtApi" class="org.esupportail.nfctag.service.api.impl.AppliExtRestWs">
-        <property name="isTagableUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/isTagable"/>
-        <property name="validateTagUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/validateTag"/>
-        <property name="getLocationsUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/locationsSearch"/>
+        <property name="isTagableUrl" value="http://esup-sgc.localhost/wsrest/nfc/isTagable"/>
+        <property name="validateTagUrl" value="http://esup-sgc.localhost/wsrest/nfc/validateTag"/>
+        <property name="getLocationsUrl" value="http://esup-sgc.localhost/wsrest/nfc/locationsSearch"/>
         <property name="description" value="Web Service Search Esup SGC"/>
     </bean>
 
     <bean id="esupSgcLivraisonExtApi" class="org.esupportail.nfctag.service.api.impl.AppliExtRestWs">
-    	<property name="isTagableUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/isTagable"/>
-    	<property name="validateTagUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/validateTag"/>
-    	<property name="getLocationsUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/locationsLivreur"/>
+    	<property name="isTagableUrl" value="http://esup-sgc.localhost/wsrest/nfc/isTagable"/>
+    	<property name="validateTagUrl" value="http://esup-sgc.localhost/wsrest/nfc/validateTag"/>
+    	<property name="getLocationsUrl" value="http://esup-sgc.localhost/wsrest/nfc/locationsLivreur"/>
     	<property name="description" value="Web Service livraison SGC"/>
     </bean>
 
     <bean id="esupSgcVersoExtApi" class="org.esupportail.nfctag.service.api.impl.AppliExtRestWs">
-    	<property name="isTagableUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/isTagable"/>
-    	<property name="validateTagUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/validateTag"/>
-    	<property name="getLocationsUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/locationsVerso"/>
-    	<property name="displayUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/verso"/>
+    	<property name="isTagableUrl" value="http://esup-sgc.localhost/wsrest/nfc/isTagable"/>
+    	<property name="validateTagUrl" value="http://esup-sgc.localhost/wsrest/nfc/validateTag"/>
+    	<property name="getLocationsUrl" value="http://esup-sgc.localhost/wsrest/nfc/locationsVerso"/>
+    	<property name="displayUrl" value="http://esup-sgc.localhost/wsrest/nfc/verso"/>
     	<property name="description" value="Web Service Verso"/>
     </bean>
     
     <bean id="tagIdCheckApiEsupSgc" class="org.esupportail.nfctag.service.api.impl.TagIdCheckRestWs">
-	<property name="tagIdCheckUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/tagIdCheck"/>
-	<property name="idFromEppnInitUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/idFromEppnInit"/>
+	<property name="tagIdCheckUrl" value="http://esup-sgc.localhost/wsrest/nfc/tagIdCheck"/>
+	<property name="idFromEppnInitUrl" value="http://esup-sgc.localhost/wsrest/nfc/idFromEppnInit"/>
 	<property name="description" value="via Esup SGC"/>
     </bean>
 
     <bean id="esupUserFieldEmailExtApi" class="org.esupportail.nfctag.service.api.impl.AppliExtRestWs">
-        <property name="isTagableUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/isTagable"/>
-        <property name="validateTagUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/validateTag"/>
-        <property name="getLocationsUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/locationsSearch"/>
-        <property name="displayUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/getUserField?fieldName=email"/>
+        <property name="isTagableUrl" value="http://esup-sgc.localhost/wsrest/nfc/isTagable"/>
+        <property name="validateTagUrl" value="http://esup-sgc.localhost/wsrest/nfc/validateTag"/>
+        <property name="getLocationsUrl" value="http://esup-sgc.localhost/wsrest/nfc/locationsSearch"/>
+        <property name="displayUrl" value="http://esup-sgc.localhost/wsrest/nfc/getUserField?fieldName=email"/>
         <property name="description" value="Web Service Field Email"/>
     </bean>
 
     <bean id="esupUserFieldEppnExtApi" class="org.esupportail.nfctag.service.api.impl.AppliExtRestWs">
-        <property name="isTagableUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/isTagable"/>
-        <property name="validateTagUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/validateTag"/>
-        <property name="getLocationsUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/locationsSearch"/>
-        <property name="displayUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/getUserField?fieldName=eppn"/>
+        <property name="isTagableUrl" value="http://esup-sgc.localhost/wsrest/nfc/isTagable"/>
+        <property name="validateTagUrl" value="http://esup-sgc.localhost/wsrest/nfc/validateTag"/>
+        <property name="getLocationsUrl" value="http://esup-sgc.localhost/wsrest/nfc/locationsSearch"/>
+        <property name="displayUrl" value="http://esup-sgc.localhost/wsrest/nfc/getUserField?fieldName=eppn"/>
         <property name="description" value="Web Service Field Eppn"/>
     </bean>
 
     <bean id="esupUserFieldSecondaryIdExtApi" class="org.esupportail.nfctag.service.api.impl.AppliExtRestWs">
-        <property name="isTagableUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/isTagable"/>
-        <property name="validateTagUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/validateTag"/>
-        <property name="getLocationsUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/locationsSearch"/>
-        <property name="displayUrl" value="https://esup-sgc.univ-ville.fr/wsrest/nfc/getUserField?fieldName=secondaryId"/>
+        <property name="isTagableUrl" value="http://esup-sgc.localhost/wsrest/nfc/isTagable"/>
+        <property name="validateTagUrl" value="http://esup-sgc.localhost/wsrest/nfc/validateTag"/>
+        <property name="getLocationsUrl" value="http://esup-sgc.localhost/wsrest/nfc/locationsSearch"/>
+        <property name="displayUrl" value="http://esup-sgc.localhost/wsrest/nfc/getUserField?fieldName=secondaryId"/>
         <property name="description" value="Web Service Field SecondaryId"/>
     </bean>    
 

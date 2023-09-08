@@ -219,7 +219,7 @@
 	
 	<bean id="esupNfcTagService" class="org.esupportail.sgc.services.EsupNfcTagService">
 		<property name="restTemplate" ref="restTemplate"/>
-		<property name="webUrl" value="https://esup-nfc-tag.univ-ville.fr"/>
+		<property name="webUrl" value="http://esup-nfc-tag.localhost"/>
 		<property name="applicationName" value="Ecriture SGC"/>	
 		<property name="location" value="Encodage ESUP SGC"/>
 	</bean>
