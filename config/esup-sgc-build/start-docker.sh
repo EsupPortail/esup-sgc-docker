@@ -21,6 +21,8 @@ then
     mvn compile exec:java -Dexec.args="dbupgrade"
     mvn package && rm -rf target/ROOT
     mv target/$(git describe --tags --abbrev=0 | sed 's/esup-//') target/ROOT
+    echo "Copie du binaire esup-sgc-client"
+    cp /opt/esup-sgc-client/esupsgcclient-assembly/target/esup-sgc-client-final.jar target/ROOT/esupsgcclient-shib.jar
 fi
 
 echo "Build terminé"

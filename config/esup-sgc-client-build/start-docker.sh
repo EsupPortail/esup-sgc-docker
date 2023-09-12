@@ -10,12 +10,10 @@ else
     echo "Répertoire $DST_DIR non vide, conversation du binaire existant"
 fi
 
-echo "Montage des fichiers configuration (config esup-sgc)"
-ln -sf /docker-config/applicationContext-custom.xml $DST_DIR/src/main/resources/META-INF/spring/applicationContext-custom.xml
-ln -sf /docker-config/applicationContext-security.xml $DST_DIR/src/main/resources/META-INF/spring/applicationContext-security.xml
+echo "Montage des fichiers configuration"
+ln -sf /docker-config/applicationContext-services.xml $DST_DIR/src/main/resources/META-INF/spring/applicationContext-services.xml
 ln -sf /docker-config/database.properties $DST_DIR/src/main/resources/META-INF/spring/database.properties
 ln -sf /docker-config/persistence.xml $DST_DIR/src/main/resources/META-INF/persistence.xml
-ln -sf /docker-config/context.xml $DST_DIR/src/main/webapp/META-INF/context.xml
 
 if [ "$DST_DIR_EMPTY" = "True" ]
 then
