@@ -10,13 +10,10 @@ else
     echo "Répertoire $DST_DIR non vide, conversation du binaire existant"
 fi
 
-echo "Copie des fichiers configuration"
-cp /docker-config/applicationContext-custom.xml $DST_DIR/src/main/resources/META-INF/spring/applicationContext-custom.xml
-cp /docker-config/applicationContext-security.xml $DST_DIR/src/main/resources/META-INF/spring/applicationContext-security.xml
-cp /docker-config/database.properties $DST_DIR/src/main/resources/META-INF/spring/database.properties
-cp /docker-config/persistence.xml $DST_DIR/src/main/resources/META-INF/persistence.xml
-cp /docker-config/context.xml $DST_DIR/src/main/webapp/META-INF/context.xml
-cp /docker-config/logback.xml $DST_DIR/src/main/resources/logback.xml
+echo "Montage des fichiers configuration"
+ln -sf /docker-config/app/applicationContext-services.xml $DST_DIR/src/main/resources/META-INF/spring/applicationContext-services.xml
+ln -sf /docker-config/app/database.properties $DST_DIR/src/main/resources/META-INF/spring/database.properties
+ln -sf /docker-config/app/persistence.xml $DST_DIR/src/main/resources/META-INF/persistence.xml
 
 if [ "$DST_DIR_EMPTY" = "True" ]
 then
@@ -24,6 +21,8 @@ then
     mvn compile exec:java -Dexec.args="dbupgrade"
     mvn package && rm -rf target/ROOT
     mv target/$(git describe --tags --abbrev=0 | sed 's/esup-//') target/ROOT
+    echo "Copie du binaire esup-sgc-client"
+    cp /opt/esup-sgc-client/esupsgcclient-assembly/target/esup-sgc-client-final.jar target/ROOT/esupsgcclient-shib.jar
 fi
 
 echo "Build terminé"

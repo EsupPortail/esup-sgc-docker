@@ -9,7 +9,7 @@ services:
     build:
         context: ./docker/esup-nfc-tag-app
     volumes:
-      - $PWD/config/esup-nfc-tag-app/server.xml:/usr/local/tomcat/conf/server.xml
+      - $PWD/config/esup-nfc-tag/tomcat/server.xml:/usr/local/tomcat/conf/server.xml
       - esup-nfc-tag-vol:/opt/esup-nfc-tag-server
 
   esup-nfc-tag-build:
@@ -19,7 +19,7 @@ services:
     build:
       context: ./docker/esup-nfc-tag-build
     volumes:
-      - $PWD/config/esup-nfc-tag-build:/docker-config
+      - $PWD/config/esup-nfc-tag:/docker-config/
       - esup-nfc-tag-vol:/opt/esup-nfc-tag-server
       - m2-vol:/root/.m2
 
@@ -59,7 +59,7 @@ services:
     build:
         context: ./docker/esup-sgc-app
     volumes:
-      - $PWD/config/esup-sgc-app/server.xml:/usr/local/tomcat/conf/server.xml
+      - $PWD/config/esup-sgc/tomcat/server.xml:/usr/local/tomcat/conf/server.xml
       - esup-sgc-vol:/opt/esup-sgc
 
   esup-sgc-build:
@@ -69,7 +69,7 @@ services:
     build:
       context: ./docker/esup-sgc-build
     volumes:
-      - $PWD/config/esup-sgc-build:/docker-config
+      - $PWD/config/esup-sgc:/docker-config
       - esup-sgc-vol:/opt/esup-sgc
       - m2-vol:/root/.m2
 
