@@ -133,6 +133,21 @@ services:
       timeout: 5s
       retries: 5
 
+  my-pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    depends_on:
+      my-db:
+        condition: service_healthy
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "dbadmin@univ-ville.fr"
+      PGADMIN_DEFAULT_PASSWORD: "esup"
+    volumes:
+      - $PWD/config/pgadmin/servers.json:/pgadmin4/servers.json
+      - $PWD/config/pgadmin/pgpass:/pgpass
+
   my-shib-idp:
     hostname: idp.localhost
     build:
