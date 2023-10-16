@@ -10,10 +10,10 @@ else
     echo "Répertoire $DST_DIR non vide, conversation du binaire existant"
 fi
 
-echo "Montage des fichiers configuration"
-ln -sf /docker-config/applicationContext-services.xml $DST_DIR/src/main/resources/META-INF/spring/applicationContext-services.xml
-ln -sf /docker-config/database.properties $DST_DIR/src/main/resources/META-INF/spring/database.properties
-ln -sf /docker-config/persistence.xml $DST_DIR/src/main/resources/META-INF/persistence.xml
+echo "Copie des fichiers configuration"
+cp /docker-config/applicationContext-services.xml $DST_DIR/src/main/resources/META-INF/spring/applicationContext-services.xml
+cp /docker-config/database.properties $DST_DIR/src/main/resources/META-INF/spring/database.properties
+cp /docker-config/persistence.xml $DST_DIR/src/main/resources/META-INF/persistence.xml
 
 if [ "$DST_DIR_EMPTY" = "True" ]
 then

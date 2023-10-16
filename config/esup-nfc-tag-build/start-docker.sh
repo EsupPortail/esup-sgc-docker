@@ -10,12 +10,13 @@ else
     echo "Répertoire $DST_DIR non vide, conversation du binaire existant"
 fi
 
-echo "Montage des fichiers configuration (config esup-sgc)"
-ln -sf /docker-config/applicationContext-custom.xml $DST_DIR/src/main/resources/META-INF/spring/applicationContext-custom.xml
-ln -sf /docker-config/applicationContext-security.xml $DST_DIR/src/main/resources/META-INF/spring/applicationContext-security.xml
-ln -sf /docker-config/database.properties $DST_DIR/src/main/resources/META-INF/spring/database.properties
-ln -sf /docker-config/persistence.xml $DST_DIR/src/main/resources/META-INF/persistence.xml
-ln -sf /docker-config/context.xml $DST_DIR/src/main/webapp/META-INF/context.xml
+echo "Copie des fichiers configuration"
+cp /docker-config/applicationContext-custom.xml $DST_DIR/src/main/resources/META-INF/spring/applicationContext-custom.xml
+cp /docker-config/applicationContext-security.xml $DST_DIR/src/main/resources/META-INF/spring/applicationContext-security.xml
+cp /docker-config/database.properties $DST_DIR/src/main/resources/META-INF/spring/database.properties
+cp /docker-config/persistence.xml $DST_DIR/src/main/resources/META-INF/persistence.xml
+cp /docker-config/context.xml $DST_DIR/src/main/webapp/META-INF/context.xml
+cp /docker-config/logback.xml $DST_DIR/src/main/resources/logback.xml
 
 if [ "$DST_DIR_EMPTY" = "True" ]
 then
