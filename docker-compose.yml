@@ -29,7 +29,7 @@ services:
       - esup-nfc-tag-app
       - my-reverse-proxy
     build:
-      context: ./docker/esup-nfc-tag-front
+      context: ./docker/shib-front
     environment:
       ####### APACHE SECTION #######
       - SERVICE_TO_PROTECT=esup-nfc-tag-app
@@ -82,7 +82,7 @@ services:
       - esup-sgc-app
       - my-reverse-proxy
     build:
-      context: ./docker/esup-sgc-front
+      context: ./docker/shib-front
     environment:
       ####### APACHE SECTION #######
       - SERVICE_TO_PROTECT=esup-sgc-app
