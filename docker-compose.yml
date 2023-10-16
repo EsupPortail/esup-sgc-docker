@@ -44,7 +44,7 @@ services:
       test: [ "CMD-SHELL", "curl -f -LI http://esup-nfc-tag.localhost/Shibboleth.sso/Metadata" ]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
     labels:
       - traefik.http.routers.esup-nfc-tag-front.rule=Host(`esup-nfc-tag.localhost`)
       - traefik.http.services.esup-nfc-tag-front.loadbalancer.server.port=80      
@@ -97,7 +97,7 @@ services:
       test: [ "CMD-SHELL", "curl -f -LI http://esup-sgc.localhost/Shibboleth.sso/Metadata" ]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
     labels:
       - traefik.http.routers.esup-sgc-front.rule=Host(`esup-sgc.localhost`)
       - traefik.http.services.esup-sgc-front.loadbalancer.server.port=80      
