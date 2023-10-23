@@ -9,7 +9,7 @@ services:
     build:
         context: ./docker/esup-nfc-tag-app
     volumes:
-      - $PWD/config/esup-nfc-tag/tomcat/server.xml:/usr/local/tomcat/conf/server.xml
+      - ./config/esup-nfc-tag/tomcat/server.xml:/usr/local/tomcat/conf/server.xml
       - esup-nfc-tag-vol:/opt/esup-nfc-tag-server
 
   esup-nfc-tag-build:
@@ -19,7 +19,7 @@ services:
     build:
       context: ./docker/esup-nfc-tag-build
     volumes:
-      - $PWD/config/esup-nfc-tag:/docker-config/
+      - ./config/esup-nfc-tag:/docker-config/
       - esup-nfc-tag-vol:/opt/esup-nfc-tag-server
       - m2-vol:/root/.m2
 
@@ -50,7 +50,7 @@ services:
       - traefik.http.services.esup-nfc-tag-front.loadbalancer.server.port=80      
       - traefik.enable=true
     volumes:
-      - $PWD/config/esup-nfc-tag-front:/docker-config
+      - ./config/esup-nfc-tag-front:/docker-config
 
   esup-sgc-app:
     depends_on:
@@ -59,7 +59,7 @@ services:
     build:
         context: ./docker/esup-sgc-app
     volumes:
-      - $PWD/config/esup-sgc/tomcat/server.xml:/usr/local/tomcat/conf/server.xml
+      - ./config/esup-sgc/tomcat/server.xml:/usr/local/tomcat/conf/server.xml
       - esup-sgc-vol:/opt/esup-sgc
 
   esup-sgc-build:
@@ -69,7 +69,7 @@ services:
     build:
       context: ./docker/esup-sgc-build
     volumes:
-      - $PWD/config/esup-sgc:/docker-config
+      - ./config/esup-sgc:/docker-config
       - esup-sgc-vol:/opt/esup-sgc
       - m2-vol:/root/.m2
 
@@ -100,7 +100,7 @@ services:
       - traefik.http.services.esup-sgc-front.loadbalancer.server.port=80      
       - traefik.enable=true
     volumes:
-      - $PWD/config/esup-sgc-front:/docker-config
+      - ./config/esup-sgc-front:/docker-config
 
   my-ldap:
     image: osixia/openldap:1.5.0
@@ -108,10 +108,10 @@ services:
       LDAP_DOMAIN: "univ-ville.fr"
     command: --copy-service
     volumes:
-      - $PWD/config/ldap/eduperson.schema:/container/service/slapd/assets/config/bootstrap/schema/eduperson.schema
-      - $PWD/config/ldap/schac.schema:/container/service/slapd/assets/config/bootstrap/schema/schac.schema
-      - $PWD/config/ldap/supann-2021-10-01.schema:/container/service/slapd/assets/config/bootstrap/schema/supann-2021-10-01.schema
-      - $PWD/config/ldap/data.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/data.ldif
+      - ./config/ldap/eduperson.schema:/container/service/slapd/assets/config/bootstrap/schema/eduperson.schema
+      - ./config/ldap/schac.schema:/container/service/slapd/assets/config/bootstrap/schema/schac.schema
+      - ./config/ldap/supann-2021-10-01.schema:/container/service/slapd/assets/config/bootstrap/schema/supann-2021-10-01.schema
+      - ./config/ldap/data.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/data.ldif
     ports:
       - 3890:389
 
@@ -125,7 +125,7 @@ services:
     ports:
       - 4432:5432
     volumes:
-      - $PWD/config/postgres/init:/docker-entrypoint-initdb.d
+      - ./config/postgres/init:/docker-entrypoint-initdb.d
       - my-db-vol:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
@@ -145,8 +145,8 @@ services:
       PGADMIN_DEFAULT_EMAIL: "dbadmin@univ-ville.fr"
       PGADMIN_DEFAULT_PASSWORD: "esup"
     volumes:
-      - $PWD/config/pgadmin/servers.json:/pgadmin4/servers.json
-      - $PWD/config/pgadmin/pgpass:/pgpass
+      - ./config/pgadmin/servers.json:/pgadmin4/servers.json
+      - ./config/pgadmin/pgpass:/pgpass
 
   my-shib-idp:
     hostname: idp.localhost
@@ -162,13 +162,13 @@ services:
       - traefik.http.services.my-shib-idp.loadbalancer.server.port=80
       - traefik.enable=true
     volumes:
-      - $PWD/config/shib-idp/server.xml:/usr/local/tomcat/conf/server.xml
-      - $PWD/config/shib-idp/attribute-resolver.xml:/opt/shibboleth-idp/conf/attribute-resolver.xml
-      - $PWD/config/shib-idp/idp.properties:/opt/shibboleth-idp/conf/idp.properties
-      - $PWD/config/shib-idp/ldap.properties:/opt/shibboleth-idp/conf/ldap.properties
-      - $PWD/config/shib-idp/attribute-filter.xml:/opt/shibboleth-idp/conf/attribute-filter.xml
-      - $PWD/config/shib-idp/idp-metadata.xml:/opt/shibboleth-idp/metadata/idp-metadata.xml
-      - $PWD/config/shib-idp/metadata-providers.xml:/opt/shibboleth-idp/conf/metadata-providers.xml
+      - ./config/shib-idp/server.xml:/usr/local/tomcat/conf/server.xml
+      - ./config/shib-idp/attribute-resolver.xml:/opt/shibboleth-idp/conf/attribute-resolver.xml
+      - ./config/shib-idp/idp.properties:/opt/shibboleth-idp/conf/idp.properties
+      - ./config/shib-idp/ldap.properties:/opt/shibboleth-idp/conf/ldap.properties
+      - ./config/shib-idp/attribute-filter.xml:/opt/shibboleth-idp/conf/attribute-filter.xml
+      - ./config/shib-idp/idp-metadata.xml:/opt/shibboleth-idp/metadata/idp-metadata.xml
+      - ./config/shib-idp/metadata-providers.xml:/opt/shibboleth-idp/conf/metadata-providers.xml
 
   my-reverse-proxy:
     image: traefik:v2.10
