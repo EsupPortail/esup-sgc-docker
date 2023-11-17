@@ -13,6 +13,7 @@ fi
 echo "Montage des fichiers configuration"
 ln -sf /docker-config/app/applicationContext-services.xml $DST_DIR/src/main/resources/META-INF/spring/applicationContext-services.xml
 ln -sf /docker-config/app/database.properties $DST_DIR/src/main/resources/META-INF/spring/database.properties
+ln -sf /docker-config/app/security.properties $DST_DIR/src/main/resources/META-INF/spring/security.properties
 ln -sf /docker-config/app/persistence.xml $DST_DIR/src/main/resources/META-INF/persistence.xml
 
 if [ "$DST_DIR_EMPTY" = "True" ]
