@@ -4,8 +4,7 @@ DST_DIR_EMPTY=$([ "$(ls -A $DST_DIR)" ] && echo "False" || echo "True")
 if [ "$DST_DIR_EMPTY" = "True" ]
 then
     echo "Répertoire $DST_DIR vide, récupération depuis $GIT_REPO_URL (tag $GIT_REPO_TAG)"
-    git clone $GIT_REPO_URL .
-    git checkout -b $GIT_REPO_TAG $(git describe --tags --abbrev=0)
+    git clone --branch $GIT_REPO_TAG $GIT_REPO_URL .
 else
     echo "Répertoire $DST_DIR non vide, conversation du binaire existant"
 fi
@@ -21,7 +20,7 @@ then
     echo "Compilation et installation"
     mvn compile exec:java -Dexec.args="dbupgrade"
     mvn package && rm -rf target/ROOT
-    mv target/$(git describe --tags --abbrev=0 | sed 's/esup-//') target/ROOT
+    mv target/${GIT_REPO_TAG#esup-} target/ROOT
     echo "Copie du binaire esup-sgc-client"
     cp /opt/esup-sgc-client/esupsgcclient-assembly/target/esup-sgc-client-final.jar target/ROOT/esupsgcclient-shib.jar
 fi
