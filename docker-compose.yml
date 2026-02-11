@@ -171,7 +171,7 @@ services:
       - ./config/shib-idp/metadata-providers.xml:/opt/shibboleth-idp/conf/metadata-providers.xml
 
   my-reverse-proxy:
-    image: traefik:v2.10
+    image: traefik:v2.11
     command: --api.insecure=true --providers.docker --providers.docker.exposedbydefault=false --entrypoints.web.address=:80
     ports:
       - "80:80"
