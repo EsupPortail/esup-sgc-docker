@@ -1,4 +1,4 @@
-FROM tomcat:9.0.64-jre11-openjdk-bullseye
+FROM tomcat:10.1-jdk21-temurin-jammy
 
 EXPOSE 8309
 

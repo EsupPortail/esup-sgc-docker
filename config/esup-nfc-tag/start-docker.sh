@@ -14,11 +14,14 @@ cp /docker-config/app/applicationContext-custom.xml $DST_DIR/src/main/resources/
 cp /docker-config/app/applicationContext-security.xml $DST_DIR/src/main/resources/META-INF/spring/applicationContext-security.xml
 cp /docker-config/app/database.properties $DST_DIR/src/main/resources/META-INF/spring/database.properties
 cp /docker-config/app/persistence.xml $DST_DIR/src/main/resources/META-INF/persistence.xml
-cp /docker-config/app/context.xml $DST_DIR/src/main/webapp/META-INF/context.xml
 cp /docker-config/app/logback.xml $DST_DIR/src/main/resources/logback.xml
+cp /docker-config/app/hack_pom.sh $DST_DIR/hack_pom.sh
 
 if [ "$DST_DIR_EMPTY" = "True" ]
 then
+    echo "Pour sgc-docker, hack pour modifier pom.xml en ajoutant quelques dépendances ..."
+    chmod +x hack_pom.sh
+    ./hack_pom.sh
     echo "Compilation et installation"
     mvn compile exec:java -Dexec.args="dbupgrade"
     mvn package && rm -rf target/ROOT

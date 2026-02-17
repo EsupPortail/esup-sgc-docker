@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# suppresion de toutes les images
+# suppresion de toutes les images de esup-sgc-docker
 docker rm $(docker ps -a -f status=exited -f name=esup-sgc-docker -q)
 docker rmi $(docker images --format "{{.Repository}} {{.ID}}" | grep esup-sgc-docker | awk '{print $2}') -f
 

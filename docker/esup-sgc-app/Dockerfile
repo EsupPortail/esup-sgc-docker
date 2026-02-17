@@ -1,4 +1,4 @@
-FROM tomcat:9.0.82-jre11-temurin-jammy
+FROM tomcat:10.1-jdk21-temurin-jammy
 
 RUN apt-get update \
     && apt-get install -y \
